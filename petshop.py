@@ -192,8 +192,9 @@ class Crawler(WebCrawler):
 
 if __name__ == "__main__":
     produtos = list()
-
-    crawler = Crawler('https://www.extra.com.br/',  5)
+    print('Numero de Paginas')
+    numero_paginas = input()
+    crawler = Crawler('https://www.extra.com.br/',  int(numero_paginas))
     print('Buscando URL categoria')
     url_categoria = crawler.buscar_pagina_categoria('Pet Shop')
 
