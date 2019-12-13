@@ -10,11 +10,22 @@ from urllib.request import urlopen
 import xlsxwriter
 import requests
 
+import unicodedata
+import re
+
+
+def remover_acento_caracteres_especiais(texto):
+    # Unicode normalize transforma um caracter em seu equivalente em latin.
+    nfkd = unicodedata.normalize('NFKD', texto)
+    texto_sem_acento = u"".join([c for c in nfkd if not unicodedata.combining(c)])
+
+    # Usa expressão regular para retornar a texto apenas com números, letras e espaço
+    return re.sub('[^a-zA-Z0-9 \\\]', '', texto_sem_acento)
 
 class Produto():
 
     def __init__(self, nome, url):
-        self._nome = nome
+        self._nome = self.tratar_texto(nome)
         self._url = url
         self._codigo = ""
         self._preco = ""
@@ -27,22 +38,34 @@ class Produto():
         return self._url
 
     def set_codigo(self, codigo):
-        self._codigo = codigo
+        self._codigo = self.tratar_codigo(codigo)
 
     def get_codigo(self):
         return self._codigo
 
     def set_preco(self, preco):
-        self._preco = preco
+        self._preco = self.tratar_preco(preco)
 
     def get_preco(self):
         return self._preco
 
     def set_detalhe(self, detalhe):
-        self._detalhe = detalhe
+        self._detalhe = self.tratar_texto(detalhe)
 
     def get_detalhe(self):
         return self._detalhe
+    
+    def tratar_codigo(self, codigo):
+        codigo_limpo = codigo.replace('Cód. Item', '').replace('(', '').replace(')', '').replace(' ', '')
+        return codigo_limpo
+
+    def tratar_texto(self, texto):
+        texto_limpo = remover_acento_caracteres_especiais(texto.lower())
+        return texto_limpo
+
+    def tratar_preco(self, preco):
+        preco_limpo = round(float(preco.replace('.','').replace(',','.')),2)
+        return preco_limpo
 
 
 class WebCrawler():
@@ -123,12 +146,48 @@ class Crawler(WebCrawler):
         user_agent = {'User-agent': 'Mozilla/5.0'}
         response = requests.get(produto.get_url(), headers=user_agent)
         soup = BeautifulSoup(response.text, 'html.parser')
-        print(soup)
+
+         #Procurando Cód. Item
+        div_cod_sku = soup.findAll("div", {"class": "productCodSku"})
+        for cod_sku in div_cod_sku:
+            cod_item = cod_sku.find("span", {"itemprop" : "productID"})
+            if (len(cod_item) == 1):
+                produto.set_codigo(cod_item.text)
+
+        #Procurando Preço
+        div_preco = soup.findAll("i", {"class" : "sale price"})
+        for precos in div_preco:
+            produto.set_preco(precos.text)
+
+        #Procurando pela descrição do produto
+        div_descricao = soup.findAll("div", {"id" : "descricao"})
+        for descricao in div_descricao:
+            produto.set_detalhe(descricao.text.strip())
+
+    def criar_planilha(self, produtos):
+        workbook = xlsxwriter.Workbook('data_{}_pages.xlsx'.format(self.num_paginas))
+        worksheet = workbook.add_worksheet()
+
+        worksheet.write(0, 0, "Nome")
+        worksheet.write(0, 1, "Cód. Item")
+        worksheet.write(0, 2, "Preço")
+        worksheet.write(0, 3, "Detalhes")
+
+        linha = 1
+
+        for produto in produtos:
+            worksheet.write(linha, 0, produto.get_nome())
+            worksheet.write(linha, 1, produto.get_codigo())
+            worksheet.write(linha, 2, produto.get_preco())
+            worksheet.write(linha, 3, produto.get_detalhe())
+            linha += 1
+
+        workbook.close()
 
 if __name__ == "__main__":
     produtos = list()
 
-    crawler = Crawler('https://www.extra.com.br/',  5)
+    crawler = Crawler('https://www.extra.com.br/',  1)
     print('Buscando URL categoria')
     url_categoria = crawler.buscar_pagina_categoria('Pet Shop')
 
@@ -138,5 +197,9 @@ if __name__ == "__main__":
             print(url_produtos_pagina)
             produtos += crawler.buscar_produtos(url_produtos_pagina)
 
+    print("Foram encontrados {} produtos".format(len(produtos)))
+    print("Buscando detalhes de produtos")
     for produto in produtos:
-        crawler.buscar_detal9hes(produto)
+        crawler.buscar_detalhes(produto)
+
+    crawler.criar_planilha(produtos)

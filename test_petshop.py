@@ -41,11 +41,25 @@ class ProdutoTest(unittest.TestCase):
         produto = Produto(nome, url)
         self.assertEqual(produto.get_nome(), nome)
         self.assertEqual(produto.get_url(), url)
-
+   
         detalhe = 'mais detalhes'
         self.assertEqual(produto.get_detalhe(),  "")
         produto.set_detalhe(detalhe)
         self.assertEqual(produto.get_detalhe(), detalhe)
+
+        preco = 1000.123
+        produto.set_preco(preco)
+        self.assertEqual(produto.get_preco(), 1000.12)
+
+        nome = 'Ração'
+        url = 'http://extra.com.br/ração'
+        produto2 = Produto(nome, url)
+        self.assertEqual(produto.get_nome(), 'racao')
+ 
+        detalhe = 'ração special dog, para o seu cachorro'
+        self.assertEqual(produto2.get_detalhe(),  "")
+        produto2.set_detalhe(detalhe)
+        self.assertEqual(produto2.get_detalhe(), 'racao special dog para seu cachorro')
 
 
 class CrawlerTest(unittest.TestCase):
