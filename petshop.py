@@ -56,7 +56,10 @@ class Produto():
         return self._detalhe
     
     def tratar_codigo(self, codigo):
-        codigo_limpo = codigo.replace('Cód. Item', '').replace('(', '').replace(')', '').replace(' ', '')
+        if type(codigo) == str:
+            codigo_limpo = codigo.replace('Cód. Item', '').replace('(', '').replace(')', '').replace(' ', '')
+        else:
+            codigo_limpo = codigo
         return codigo_limpo
 
     def tratar_texto(self, texto):
@@ -64,7 +67,10 @@ class Produto():
         return texto_limpo
 
     def tratar_preco(self, preco):
-        preco_limpo = round(float(preco.replace('.','').replace(',','.')),2)
+        if type(preco) == str:
+            preco_limpo = round(float(preco.replace('.','').replace(',','.')),2)
+        else:
+            preco_limpo = round(preco, 2)
         return preco_limpo
 
 
@@ -187,7 +193,7 @@ class Crawler(WebCrawler):
 if __name__ == "__main__":
     produtos = list()
 
-    crawler = Crawler('https://www.extra.com.br/',  1)
+    crawler = Crawler('https://www.extra.com.br/',  5)
     print('Buscando URL categoria')
     url_categoria = crawler.buscar_pagina_categoria('Pet Shop')
 
