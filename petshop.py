@@ -82,7 +82,7 @@ class Crawler(WebCrawler):
         self.url = url
         self.num_paginas = num_paginas
         self._tempo_espera = 10
-        
+
     def buscar_pagina_categoria(self, categoria):
         self.drive.get(self.url)
 
@@ -101,12 +101,12 @@ class Crawler(WebCrawler):
         categoria_cachorro = self.drive.find_element_by_xpath('//*[@id="neemu-search-filters"]/li[1]/ul/li[1]/ul/li[1]/ul/li[6]/a')
         categoria_cachorro.click()
         time.sleep(self._tempo_espera)
-        
+
         url_categoria_cachorro = self.drive.current_url
         print(url_categoria_cachorro)
 
         return url_categoria_cachorro
-    
+
     def buscar_produtos(self, url):
         produtos = list()
         response = requests.get(url)
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     crawler = Crawler('https://www.extra.com.br/',  5)
     print('Buscando URL categoria')
     url_categoria = crawler.buscar_pagina_categoria('Pet Shop')
-    
+
     if url_categoria:
         for numeracao in range(1, crawler.num_paginas+1):
             url_produtos_pagina = url_categoria + '&page={}'.format(numeracao)
@@ -139,6 +139,4 @@ if __name__ == "__main__":
             produtos += crawler.buscar_produtos(url_produtos_pagina)
 
     for produto in produtos:
-        crawler.buscar_detalhes(produto)
-
-
+        crawler.buscar_detal9hes(produto)

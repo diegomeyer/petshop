@@ -1,19 +1,20 @@
 import unittest
 from petshop import Produto, Crawler
 
+
 class ProdutoTest(unittest.TestCase):
 
     def test_criar_produto(self):
         nome = 'Ração'
         url = 'http://extra.com.br/ração'
-        produto = Produto(nome, url )
+        produto = Produto(nome, url)
         self.assertEqual(produto.get_nome(), nome)
         self.assertEqual(produto.get_url(), url)
 
     def test_set_get_codigo(self):
         nome = 'Ração'
         url = 'http://extra.com.br/ração'
-        produto = Produto(nome, url )
+        produto = Produto(nome, url)
         self.assertEqual(produto.get_nome(), nome)
         self.assertEqual(produto.get_url(), url)
 
@@ -25,7 +26,7 @@ class ProdutoTest(unittest.TestCase):
     def test_set_get_preco(self):
         nome = 'Ração'
         url = 'http://extra.com.br/ração'
-        produto = Produto(nome, url )
+        produto = Produto(nome, url)
         self.assertEqual(produto.get_nome(), nome)
         self.assertEqual(produto.get_url(), url)
 
@@ -37,7 +38,7 @@ class ProdutoTest(unittest.TestCase):
     def test_set_get_detalhe(self):
         nome = 'Ração'
         url = 'http://extra.com.br/ração'
-        produto = Produto(nome, url )
+        produto = Produto(nome, url)
         self.assertEqual(produto.get_nome(), nome)
         self.assertEqual(produto.get_url(), url)
 
@@ -47,14 +48,12 @@ class ProdutoTest(unittest.TestCase):
         self.assertEqual(produto.get_detalhe(), detalhe)
 
 
-
 class CrawlerTest(unittest.TestCase):
-    
+
     @classmethod
     def setUpClass(cls):
         cls.crawler = Crawler('https://www.extra.com.br/')
 
-
     def test_buscar(self):
         self.crawler.buscar_pagina_produto()
-        self.assertEqual(True,True)
+        self.assertEqual(True, True)
